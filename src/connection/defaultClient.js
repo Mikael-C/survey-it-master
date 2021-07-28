@@ -5,6 +5,7 @@ import store from '../redux/store';
 // Get user details
 const userDetails = () => {
   let authState = store.getState().auth;
+  console.log('store-get-token------',authState.token);
   return authState;
 }
 
@@ -63,18 +64,6 @@ const successResponseHandler = (response) => {
     console.log(response.data);
   }
 
-  // Additional checks for API that does not utilize the HTTP status code properly
-  if (response.data.status === false || response.data.status === 'failed') {
-
-    // Error message is retrieved from the JSON body.
-    const error = new Error(response.data.message);
-
-    // Attach the response instance, in case you decide to access it.
-    error.response = response;
-
-    throw error;
-  }
-
   // Return processed response
   return response;
 }
@@ -94,40 +83,40 @@ const failureResponseHandler = async (error) => {
   }
 
   // No authorization response (401)
-  if (error.response && error.response.status === 401) {
-    try {
+  // if (error.response && error.response.status === 401) {
+  //   try {
 
-      // Check if retry limit has been exceeded
-      let shouldRetry = await retryAgain();
-      if (!shouldRetry){throw new Error('Retry count exceeded')}
+  //     // Check if retry limit has been exceeded
+  //     let shouldRetry = await retryAgain();
+  //     if (!shouldRetry){throw new Error('Retry count exceeded')}
 
-      // Attempt to refresh expired token
-      let refreshTokenResponse = await refreshToken(userDetails().token);
+  //     // Attempt to refresh expired token
+  //     let refreshTokenResponse = await refreshToken(userDetails().token);
 
-      // Handle token refresh blacklisting caused by a prior request having refreshed the token already
-      if (refreshTokenResponse.status.toString().split('')[0] !== '2') {
-        refreshTokenResponse = {data:{data:{access_token:userDetails().token}}}
-      }
+  //     // Handle token refresh blacklisting caused by a prior request having refreshed the token already
+  //     if (refreshTokenResponse.status.toString().split('')[0] !== '2') {
+  //       refreshTokenResponse = {data:{data:{access_token:userDetails().token}}}
+  //     }
 
-      // Retry the failed request with returned token
-      return await instance.request({...error.config, headers: {
-        ...error.config.headers,
-        Authorization: 'Bearer '+refreshTokenResponse.data.data.access_token,},
-      })
-      .then((response)=>{
-        return successResponseHandler(response);
-      })
-      .catch((error) => {
-        return Promise.reject(error);
-      });
+  //     // Retry the failed request with returned token
+  //     return await instance.request({...error.config, headers: {
+  //       ...error.config.headers,
+  //       Authorization: 'Bearer '+refreshTokenResponse.data.data.access_token,},
+  //     })
+  //     .then((response)=>{
+  //       return successResponseHandler(response);
+  //     })
+  //     .catch((error) => {
+  //       return Promise.reject(error);
+  //     });
 
-    } catch (error) {
+  //   } catch (error) {
 
-      // Logout user
-      logoutUser();
-      return Promise.reject(error);
-    }
-  }
+  //     // Logout user
+  //     logoutUser();
+  //     return Promise.reject(error);
+  //   }
+  // }
 
   // Return unprocessed error
   return Promise.reject(error);
@@ -145,6 +134,9 @@ instance.interceptors.request.use((req) => {
 
   // Get logged in user details and inject tokens to headers
   req.headers['Authorization'] = 'Bearer '+userDetails().token;
+  req.headers['Authorization'] = 'Bearer '+store.getState().auth
+
+  console.log('header--------------','Bearer '+store.getState().auth);
 
   // Set header content type and acceptable type
   // req.headers['Content-Type'] = 'application/x-www-form-urlencoded';

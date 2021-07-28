@@ -7,7 +7,7 @@ export default function AuthorizationReinstate() {
     const dispatch = useDispatch();
     React.useEffect(() => {
         // Get last login details, if any re-login user
-        // dispatch(restoreLoggedInUserAction());
+        dispatch(restoreLoggedInUserAction());
         return () => {}
     }, [dispatch]);
 

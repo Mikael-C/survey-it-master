@@ -76,9 +76,10 @@ export default function TopNavBar() {
                                     <span className="nav-link-inner--text">Survey It</span>
                                 </a>
                                 <div className="dropdown-menu">
-                                    <a href="/dashboard" className="dropdown-item">Dashboard</a>
-                                    <a href="/login" className="dropdown-item">Login</a>
-                                    <a href="/register" className="dropdown-item">Register</a>
+                                    <a href="/users" className="dropdown-item">Users</a>
+                                    <a href="/orders" className="dropdown-item">Orders</a>
+                                    <a href="/companies" className="dropdown-item">Companies</a>
+                                    <a href="/couriers" className="dropdown-item">Couriers</a>
                                 </div>
                             </li>
                         </ul>
